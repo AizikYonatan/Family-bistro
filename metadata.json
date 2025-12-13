@@ -1,0 +1,5 @@
+{
+  "name": "Family Bistro AI",
+  "description": "A fun restaurant simulation app for families. Order food, manage the kitchen, and use AI to generate menu items and chef tips.",
+  "requestFramePermissions": []
+}
