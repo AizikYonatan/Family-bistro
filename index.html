@@ -1,94 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Family Bistro AI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
-    <!-- Babel Standalone to compile React/TS in the browser -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- Polyfill for process.env (Required for Gemini SDK) -->
-    <script>
-      window.process = {
-        env: {
-          API_KEY: '', // The SDK will look here, we define it to prevent crashes
-          NODE_ENV: 'development'
-        }
-      };
-    </script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Family Bistro AI</title>
 
-    <style>
-      body {
-        font-family: 'Fredoka', sans-serif;
-      }
-      
-      /* Custom Animations */
-      @keyframes fade-in-up {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      .animate-fade-in-up {
-        animation: fade-in-up 0.6s ease-out forwards;
-      }
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-      @keyframes bounce-in {
-        0% { opacity: 0; transform: scale(0.3); }
-        50% { opacity: 1; transform: scale(1.05); }
-        70% { transform: scale(0.9); }
-        100% { transform: scale(1); }
-      }
-      .animate-bounce-in {
-        animation: bounce-in 0.5s cubic-bezier(0.215, 0.610, 0.355, 1.000) both;
-      }
+  <!-- Babel Standalone -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-      @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-        20%, 40%, 60%, 80% { transform: translateX(4px); }
-      }
-      .animate-shake {
-        animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-      }
-
-      @keyframes scale-in {
-        from { transform: scale(0); opacity: 0; }
-        to { transform: scale(1); opacity: 1; }
-      }
-      .animate-scale-in {
-        animation: scale-in 0.2s ease-out forwards;
-      }
-      
-      @keyframes ring {
-        0% { transform: rotate(0deg); }
-        25% { transform: rotate(15deg); }
-        75% { transform: rotate(-15deg); }
-        100% { transform: rotate(0deg); }
-      }
-      .animate-ring {
-        animation: ring 1s ease-in-out infinite;
-      }
-    </style>
-  <script type="importmap">
+  <style>
+    body { font-family: 'Fredoka', sans-serif; }
+    .animate-fade-in-up { animation: fade-in-up 0.6s ease-out forwards; }
+    @keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-bounce-in { animation: bounce-in 0.5s cubic-bezier(0.215, 0.610, 0.355, 1.000) both; }
+    @keyframes bounce-in { 0% { opacity:0; transform:scale(0.3); } 50%{opacity:1; transform:scale(1.05);} 70%{transform:scale(0.9);} 100%{transform:scale(1);} }
+    .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+    @keyframes shake { 0%,100%{transform:translateX(0);} 10%,30%,50%,70%,90%{transform:translateX(-4px);} 20%,40%,60%,80%{transform:translateX(4px);} }
+  </style>
+<script type="importmap">
 {
   "imports": {
-    "react/": "https://esm.sh/react@^19.2.1/",
-    "react": "https://esm.sh/react@^19.2.1",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.1/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.561.0",
     "@google/genai": "https://esm.sh/@google/genai@^1.33.0",
-    "lucide-react": "https://esm.sh/lucide-react@^0.560.0",
-    "peerjs": "https://esm.sh/peerjs@1.5.4?bundle-deps"
+    "peerjs": "https://esm.sh/peerjs@^1.5.5"
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-orange-50 text-gray-800">
-    <div id="root"></div>
-    <!-- Entry Point for the App with Babel type -->
-    <script type="text/babel" data-presets="react,typescript" data-type="module" src="./index.tsx"></script>
-  <script type="module" src="/index.tsx"></script>
+<body class="bg-orange-50 text-gray-800">
+  <div id="root"></div>
+
+  <!-- Inlined TSX App -->
+  <script type="text/babel" data-presets="react,typescript">
+
+    // --- React Imports from CDN ---
+    const { useState } = React;
+    const { createRoot } = ReactDOM;
+
+    // --- Types ---
+    const OrderStatus = {
+      PENDING: 'PENDING',
+      PREPARING: 'PREPARING',
+      READY: 'READY',
+      COMPLETED: 'COMPLETED'
+    };
+
+    // --- Sample JSON menu (can replace with your own) ---
+    const menuItems = [
+      { id:'1', name:'Burger', description:'Juicy beef burger', price:25, category:'main' },
+      { id:'2', name:'Fries', description:'Crispy fries', price:10, category:'starter' },
+      { id:'3', name:'Soda', description:'Cold drink', price:5, category:'drink' }
+    ];
+
+    // --- Components ---
+    const CustomerView = ({onBack}) => (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <h1 className="text-3xl font-bold mb-4">Customer View</h1>
+        <ul className="mb-4">
+          {menuItems.map(item => (
+            <li key={item.id} className="mb-2">{item.name} - ${item.price}</li>
+          ))}
+        </ul>
+        <button onClick={onBack} className="bg-orange-500 text-white px-4 py-2 rounded">Back</button>
+      </div>
+    );
+
+    const TrackerView = ({onBack}) => (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <h1 className="text-3xl font-bold mb-4">Order Tracker</h1>
+        <p>No orders yet.</p>
+        <button onClick={onBack} className="bg-orange-500 text-white px-4 py-2 rounded mt-4">Back</button>
+      </div>
+    );
+
+    const KitchenView = ({onBack}) => (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <h1 className="text-3xl font-bold mb-4">Kitchen View</h1>
+        <p>No orders to prepare.</p>
+        <button onClick={onBack} className="bg-orange-500 text-white px-4 py-2 rounded mt-4">Back</button>
+      </div>
+    );
+
+    // --- Main App ---
+    const App = () => {
+      const [view, setView] = useState('landing');
+      const [showPasscodeModal, setShowPasscodeModal] = useState(false);
+      const [passcode, setPasscode] = useState('');
+      const [error, setError] = useState('');
+
+      const handleChefClick = () => {
+        setShowPasscodeModal(true);
+        setPasscode('');
+        setError('');
+      };
+
+      const handlePasscodeSubmit = (e) => {
+        e.preventDefault();
+        if(passcode === '5309'){
+          setShowPasscodeModal(false);
+          setView('kitchen');
+        } else {
+          setError('Incorrect chef code!');
+          setPasscode('');
+        }
+      };
+
+      if(view === 'customer') return <CustomerView onBack={()=>setView('landing')} />;
+      if(view === 'tracker') return <TrackerView onBack={()=>setView('landing')} />;
+      if(view === 'kitchen') return <KitchenView onBack={()=>setView('landing')} />;
+
+      return (
+        <div className="min-h-screen bg-gradient-to-b from-orange-100 to-orange-50 flex items-center justify-center p-4 relative">
+          {/* Chef Button */}
+          <button onClick={handleChefClick} className="absolute top-4 right-4 bg-white/50 hover:bg-white p-3 rounded-full shadow-sm hover:shadow-md text-slate-400 hover:text-orange-600 z-10">👨‍🍳</button>
+
+          <div className={`max-w-2xl w-full text-center space-y-12 animate-fade-in-up transition-opacity duration-300 ${showPasscodeModal?'opacity-30 blur-sm pointer-events-none':'opacity-100'}`}>
+            <h1 className="text-5xl font-black text-gray-800">Family Bistro</h1>
+            <p className="text-xl text-gray-600 max-w-lg mx-auto">Welcome! Order food or track your meal.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-xl mx-auto">
+              <button onClick={()=>setView('customer')} className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl">I'm Hungry</button>
+              <button onClick={()=>setView('tracker')} className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl">Track Order</button>
+            </div>
+          </div>
+
+          {showPasscodeModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full animate-bounce-in relative z-10">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">Chef Access</h2>
+                <form onSubmit={handlePasscodeSubmit} className="space-y-4">
+                  <input autoFocus type="password" value={passcode} onChange={(e)=>setPasscode(e.target.value)} placeholder="Enter code" className="w-full text-center text-3xl font-bold border-2 border-gray-200 rounded-xl p-4"/>
+                  {error && <div className="text-red-500 text-sm text-center font-medium animate-shake">{error}</div>}
+                  <div className="grid grid-cols-2 gap-3">
+                    <button type="button" onClick={()=>setShowPasscodeModal(false)} className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl">Cancel</button>
+                    <button type="submit" className="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl">Enter</button>
+                  </div>
+                </form>
+              </div>
+              <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-0" onClick={()=>setShowPasscodeModal(false)} />
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    // --- Mount App ---
+    const root = createRoot(document.getElementById('root'));
+    root.render(<App />);
+
+  </script>
 </body>
 </html>
